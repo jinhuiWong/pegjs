@@ -1,13 +1,14 @@
-/* global describe, expect, it, PEG */
+/* jshint jasmine:true */
+/* global PEG */
 
 "use strict";
 
-describe("compiler pass |reportLeftRecursion|", function() {
+describe("compiler pass |reportInfiniteLoops|", function() {
   var pass = PEG.compiler.passes.check.reportInfiniteLoops;
 
   it("reports infinite loops for zero_or_more", function() {
     expect(pass).toReportError('start = ("")*', {
-      message:  "Infinite loop detected.",
+      message:  "Possible infinite loop detected.",
       location: {
         start: { offset:  8, line: 1, column:  9 },
         end:   { offset: 13, line: 1, column: 14 }
@@ -17,7 +18,7 @@ describe("compiler pass |reportLeftRecursion|", function() {
 
   it("reports infinite loops for one_or_more", function() {
     expect(pass).toReportError('start = ("")+', {
-      message:  "Infinite loop detected.",
+      message:  "Possible infinite loop detected.",
       location: {
         start: { offset:  8, line: 1, column:  9 },
         end:   { offset: 13, line: 1, column: 14 }
@@ -25,7 +26,16 @@ describe("compiler pass |reportLeftRecursion|", function() {
     });
   });
 
-  it("computes empty string matching correctly", function() {
+  it("computes expressions that always consume input on success correctly", function() {
+    expect(pass).toReportError([
+      'start = a*',
+      'a "a" = ""'
+    ].join('\n'));
+    expect(pass).not.toReportError([
+      'start = a*',
+      'a "a" = "a"'
+    ].join('\n'));
+
     expect(pass).toReportError('start = ("" / "a" / "b")*');
     expect(pass).toReportError('start = ("a" / "" / "b")*');
     expect(pass).toReportError('start = ("a" / "b" / "")*');
@@ -78,6 +88,6 @@ describe("compiler pass |reportLeftRecursion|", function() {
 
     expect(pass).not.toReportError('start = [a-d]*');
 
-    expect(pass).not.toReportError('start = "."*');
+    expect(pass).not.toReportError('start = .*');
   });
 });

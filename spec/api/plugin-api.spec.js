@@ -1,4 +1,5 @@
-/* global beforeEach, describe, expect, it, jasmine, PEG */
+/* jshint jasmine:true */
+/* global PEG */
 
 "use strict";
 
@@ -33,7 +34,7 @@ describe("plugin API", function() {
         };
 
         return typeof this.actual === "function";
-      },
+      }
     });
   });
 
@@ -107,7 +108,7 @@ describe("plugin API", function() {
                     '      {',
                     '        type:       "rule",',
                     '        name:       "start",',
-                    '        expression: { type: "literal",  value: text(), ignoreCase: false }',
+                    '        expression: { type: "literal",  value: text(), ignoreCase: false, rawText: text() }',
                     '      }',
                     '    ]',
                     '  };',

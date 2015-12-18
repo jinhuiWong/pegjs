@@ -127,8 +127,8 @@ Using the Parser
 Using the generated parser is simple — just call its `parse` method and pass an
 input string as a parameter. The method will return a parse result (the exact
 value depends on the grammar used to build the parser) or throw an exception if
-the input is invalid. The exception will contain `location`, `expected`, `found`
-and `message` properties with more details about the error.
+the input is invalid. The exception will contain `location`, `expected` and
+`message` properties with more details about the error.
 
     parser.parse("abba"); // returns ["a", "b", "b", "a"]
 
@@ -229,7 +229,7 @@ generated parser, it produces a *match result*, which is a JavaScript value. For
 example:
 
   * An expression matching a literal string produces a JavaScript string
-    containing matched part of the input.
+    containing matched text.
   * An expression matching repeated occurrence of some subexpression produces a
     JavaScript array with all the matches.
 
@@ -285,29 +285,31 @@ Match a subexpression and return its match result.
 
 Match zero or more repetitions of the expression and return their match results
 in an array. The matching is greedy, i.e. the parser tries to match the
-expression as many times as possible.
+expression as many times as possible. Unlike in regular expressions, there is no
+backtracking.
 
 #### *expression* +
 
 Match one or more repetitions of the expression and return their match results
 in an array. The matching is greedy, i.e. the parser tries to match the
-expression as many times as possible.
+expression as many times as possible. Unlike in regular expressions, there is no
+backtracking.
 
 #### *expression* ?
 
 Try to match the expression. If the match succeeds, return its match result,
-otherwise return `null`.
+otherwise return `null`. Unlike in regular expressions, there is no
+backtracking.
 
 #### & *expression*
 
 Try to match the expression. If the match succeeds, just return `undefined` and
-do not advance the parser position, otherwise consider the match failed.
+do not consume any input, otherwise consider the match failed.
 
 #### ! *expression*
 
 Try to match the expression. If the match does not succeed, just return
-`undefined` and do not advance the parser position, otherwise consider the match
-failed.
+`undefined` and do not consume any input, otherwise consider the match failed.
 
 #### & { *predicate* }
 
@@ -315,8 +317,8 @@ The predicate is a piece of JavaScript code that is executed as if it was inside
 a function. It gets the match results of labeled expressions in preceding
 expression as its arguments. It should return some JavaScript value using the
 `return` statement. If the returned value evaluates to `true` in boolean
-context, just return `undefined` and do not advance the parser position;
-otherwise consider the match failed.
+context, just return `undefined` and do not consume any input; otherwise
+consider the match failed.
 
 The code inside the predicate can access all variables and functions defined in
 the initializer at the beginning of the grammar.
@@ -344,8 +346,8 @@ The predicate is a piece of JavaScript code that is executed as if it was inside
 a function. It gets the match results of labeled expressions in preceding
 expression as its arguments. It should return some JavaScript value using the
 `return` statement. If the returned value evaluates to `false` in boolean
-context, just return `undefined` and do not advance the parser position;
-otherwise consider the match failed.
+context, just return `undefined` and do not consume any input; otherwise
+consider the match failed.
 
 The code inside the predicate can access all variables and functions defined in
 the initializer at the beginning of the grammar.
@@ -369,7 +371,7 @@ Note that curly braces in the predicate code must be balanced.
 
 #### $ *expression*
 
-Try to match the expression. If the match succeeds, return the matched string
+Try to match the expression. If the match succeeds, return the matched text
 instead of the match result.
 
 #### *label* : *expression*
@@ -408,7 +410,7 @@ The code inside the action can access all variables and functions defined in the
 initializer at the beginning of the grammar. Curly braces in the action code
 must be balanced.
 
-The code inside the action can also access the string matched by the expression
+The code inside the action can also access the text matched by the expression
 using the `text` function.
 
 
@@ -443,7 +445,9 @@ Both the parser generator and generated parsers should run well in the following
 environments:
 
   * Node.js 0.10.0+
-  * IE 8+
+  * io.js
+  * Internet Explorer 8+
+  * Edge
   * Firefox
   * Chrome
   * Safari
@@ -455,7 +459,6 @@ Development
   * [Project website](http://pegjs.org/)
   * [Wiki](https://github.com/pegjs/pegjs/wiki)
   * [Source code](https://github.com/pegjs/pegjs)
-  * [Trello board](https://trello.com/board/peg-js/50a8eba48cf95d4957006b01)
   * [Issue tracker](https://github.com/pegjs/pegjs/issues)
   * [Google Group](http://groups.google.com/group/pegjs)
   * [Twitter](http://twitter.com/peg_js)
