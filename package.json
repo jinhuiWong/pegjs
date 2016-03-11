@@ -7,9 +7,13 @@
     "PEG"
   ],
   "homepage": "http://pegjs.org/",
-  "bugs": "https://github.com/pegjs/pegjs/issues",
+  "bugs": "https://github.com/nwronski/pegjs/issues",
   "license": "MIT",
   "author": "David Majda <david@majda.cz> (http://majda.cz/)",
+  "contributors": [
+    "David Majda <david@majda.cz>",
+    "Nick Wronski <nick@javascript.com>"
+  ],
   "files": [
     "CHANGELOG.md",
     "LICENSE",
@@ -41,15 +45,15 @@
   ],
   "main": "lib/peg",
   "bin": "bin/pegjs",
-  "repository": "pegjs/pegjs",
+  "repository": "nwronski/pegjs",
   "scripts": {
     "test": "make lint && make spec"
   },
   "devDependencies": {
-    "browserify": "11.2.0",
-    "eslint": "1.10.3",
+    "browserify": "13.0.0",
+    "eslint": "2.3.0",
     "jasmine-node": "1.14.5",
-    "uglify-js": "2.4.24"
+    "uglify-js": "2.6.2"
   },
   "engines": {
     "node": ">=0.10"
