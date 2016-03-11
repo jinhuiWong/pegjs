@@ -1,5 +1,5 @@
-/* jshint jasmine:true */
-/* global PEG */
+/* eslint no-console: 0 */
+/* global PEG, console */
 
 "use strict";
 
