@@ -1,36 +1,33 @@
-/* global PEG */
-
 "use strict";
+
+let peg = require("../../lib/peg");
 
 describe("plugin API", function() {
   beforeEach(function() {
     this.addMatchers({
       toBeObject: function() {
-        this.message = function() {
-          return "Expected " + jasmine.pp(this.actual) + " "
-               + (this.isNot ? "not " : "")
-               + "to be an object.";
-        };
+        this.message = () =>
+          "Expected " + jasmine.pp(this.actual) + " "
+            + (this.isNot ? "not " : "")
+            + "to be an object.";
 
         return this.actual !== null && typeof this.actual === "object";
       },
 
       toBeArray: function() {
-        this.message = function() {
-          return "Expected " + jasmine.pp(this.actual) + " "
-               + (this.isNot ? "not " : "")
-               + "to be an array.";
-        };
+        this.message = () =>
+          "Expected " + jasmine.pp(this.actual) + " "
+            + (this.isNot ? "not " : "")
+            + "to be an array.";
 
         return Object.prototype.toString.apply(this.actual) === "[object Array]";
       },
 
       toBeFunction: function() {
-        this.message = function() {
-          return "Expected " + jasmine.pp(this.actual) + " "
-               + (this.isNot ? "not " : "")
-               + "to be a function.";
-        };
+        this.message = () =>
+          "Expected " + jasmine.pp(this.actual) + " "
+            + (this.isNot ? "not " : "")
+            + "to be a function.";
 
         return typeof this.actual === "function";
       }
@@ -38,122 +35,120 @@ describe("plugin API", function() {
   });
 
   describe("use", function() {
-    var grammar = 'start = "a"';
+    let grammar = "start = 'a'";
 
     it("is called for each plugin", function() {
-      var pluginsUsed = [false, false, false],
-          plugins     = [
+      let pluginsUsed = [false, false, false];
+      let plugins = [
             { use: function() { pluginsUsed[0] = true; } },
             { use: function() { pluginsUsed[1] = true; } },
             { use: function() { pluginsUsed[2] = true; } }
           ];
 
-      PEG.buildParser(grammar, { plugins: plugins });
+      peg.generate(grammar, { plugins: plugins });
 
       expect(pluginsUsed).toEqual([true, true, true]);
     });
 
     it("receives configuration", function() {
-      var plugin = {
+      let plugin = {
             use: function(config) {
-              var i;
-
               expect(config).toBeObject();
 
               expect(config.parser).toBeObject();
-              expect(config.parser.parse('start = "a"')).toBeObject();
+              expect(config.parser.parse("start = 'a'")).toBeObject();
 
               expect(config.passes).toBeObject();
 
               expect(config.passes.check).toBeArray();
-              for (i = 0; i < config.passes.check.length; i++) {
-                expect(config.passes.check[i]).toBeFunction();
-              }
+              config.passes.check.forEach(pass => {
+                expect(pass).toBeFunction();
+              });
 
               expect(config.passes.transform).toBeArray();
-              for (i = 0; i < config.passes.transform.length; i++) {
-                expect(config.passes.transform[i]).toBeFunction();
-              }
+              config.passes.transform.forEach(pass => {
+                expect(pass).toBeFunction();
+              });
 
               expect(config.passes.generate).toBeArray();
-              for (i = 0; i < config.passes.generate.length; i++) {
-                expect(config.passes.generate[i]).toBeFunction();
-              }
+              config.passes.generate.forEach(pass => {
+                expect(pass).toBeFunction();
+              });
             }
           };
 
-      PEG.buildParser(grammar, { plugins: [plugin] });
+      peg.generate(grammar, { plugins: [plugin] });
     });
 
     it("receives options", function() {
-      var plugin             = {
+      let plugin = {
             use: function(config, options) {
-              expect(options).toEqual(buildParserOptions);
+              expect(options).toEqual(generateOptions);
             }
-          },
-          buildParserOptions = { plugins: [plugin], foo: 42 };
+          };
+      let generateOptions = { plugins: [plugin], foo: 42 };
 
-      PEG.buildParser(grammar, buildParserOptions);
+      peg.generate(grammar, generateOptions);
     });
 
     it("can replace parser", function() {
-      var plugin = {
+      let plugin = {
             use: function(config) {
-              var parser = PEG.buildParser([
-                    'start = .* {',
-                    '  return {',
-                    '    type:  "grammar",',
-                    '    rules: [',
-                    '      {',
-                    '        type:       "rule",',
-                    '        name:       "start",',
-                    '        expression: { type: "literal",  value: text(), ignoreCase: false, rawText: text() }',
-                    '      }',
-                    '    ]',
-                    '  };',
-                    '}'
+              let parser = peg.generate([
+                    "start = .* {",
+                    "  return {",
+                    "    type: 'grammar',",
+                    "    rules: [",
+                    "      {",
+                    "        type: 'rule',",
+                    "        name: 'start',",
+                    "        expression: { type: 'literal',  value: text(), ignoreCase: false }",
+                    "      }",
+                    "    ]",
+                    "  };",
+                    "}"
                   ].join("\n"));
 
               config.parser = parser;
             }
-          },
-          parser = PEG.buildParser('a', { plugins: [plugin] });
+          };
+      let parser = peg.generate("a", { plugins: [plugin] });
 
       expect(parser.parse("a")).toBe("a");
     });
 
     it("can change compiler passes", function() {
-      var plugin = {
+      let plugin = {
             use: function(config) {
-              var pass = function(ast) {
-                    ast.code = '({ parse: function() { return 42; } })';
+              let pass = ast => {
+                    ast.code = "({ parse: function() { return 42; } })";
                   };
 
               config.passes.generate = [pass];
             }
-          },
-          parser = PEG.buildParser(grammar, { plugins: [plugin] });
+          };
+      let parser = peg.generate(grammar, { plugins: [plugin] });
 
       expect(parser.parse("a")).toBe(42);
     });
 
     it("can change options", function() {
-      var grammar = [
-            'a = "x"',
-            'b = "x"',
-            'c = "x"'
-          ].join("\n"),
-          plugin  = {
+      let grammar = [
+            "a = 'x'",
+            "b = 'x'",
+            "c = 'x'"
+          ].join("\n");
+      let plugin = {
             use: function(config, options) {
               options.allowedStartRules = ["b", "c"];
             }
-          },
-          parser  = PEG.buildParser(grammar, {
+          };
+      let parser = peg.generate(grammar, {
             allowedStartRules: ["a"],
-            plugins:           [plugin]
+            plugins: [plugin]
           });
 
-      expect(function() { parser.parse("x", { startRule: "a" }); }).toThrow();
+      expect(() => { parser.parse("x", { startRule: "a" }); }).toThrow();
       expect(parser.parse("x", { startRule: "b" })).toBe("x");
       expect(parser.parse("x", { startRule: "c" })).toBe("x");
     });

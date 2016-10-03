@@ -21,8 +21,11 @@ PARSER_SRC_FILE     = $(SRC_DIR)/parser.pegjs
 PARSER_OUT_FILE     = $(LIB_DIR)/parser.js
 PARSER_OUT_FILE_NEW = $(LIB_DIR)/parser.js.new
 
-BROWSER_FILE_DEV = $(BROWSER_DIR)/peg-$(PEGJS_VERSION).js
-BROWSER_FILE_MIN = $(BROWSER_DIR)/peg-$(PEGJS_VERSION).min.js
+BROWSER_FILE_DEV = $(BROWSER_DIR)/peg.js
+BROWSER_FILE_MIN = $(BROWSER_DIR)/peg.min.js
+
+SPEC_SERVER_FILE      = $(SPEC_DIR)/server
+BENCHMARK_SERVER_FILE = $(BENCHMARK_DIR)/server
 
 VERSION_FILE = VERSION
 
@@ -47,13 +50,13 @@ parser:
 	# tricky because the file is used when generating its own new version, which
 	# means we can't start writing the header there until we call $(PEGJS).
 
-	$(PEGJS) $(PARSER_SRC_FILE) $(PARSER_OUT_FILE_NEW)
+	$(PEGJS) -o $(PARSER_OUT_FILE_NEW) $(PARSER_SRC_FILE)
 
 	rm -f $(PARSER_OUT_FILE)
 
-	echo '/* eslint no-unused-vars: 0 */' >> $(PARSER_OUT_FILE)
-	echo                                  >> $(PARSER_OUT_FILE)
-	cat $(PARSER_OUT_FILE_NEW)            >> $(PARSER_OUT_FILE)
+	echo '/* eslint-disable no-unused-vars */' >> $(PARSER_OUT_FILE)
+	echo                                       >> $(PARSER_OUT_FILE)
+	cat $(PARSER_OUT_FILE_NEW)                 >> $(PARSER_OUT_FILE)
 
 	rm $(PARSER_OUT_FILE_NEW)
 
@@ -64,16 +67,17 @@ browser:
 	rm -f $(BROWSER_FILE_DEV)
 	rm -f $(BROWSER_FILE_MIN)
 
-	echo '/*'                                                                          >> $(BROWSER_FILE_DEV)
-	echo " * PEG.js $(PEGJS_VERSION)"                                                  >> $(BROWSER_FILE_DEV)
-	echo ' *'                                                                          >> $(BROWSER_FILE_DEV)
-	echo ' * http://pegjs.org/'                                                        >> $(BROWSER_FILE_DEV)
-	echo ' *'                                                                          >> $(BROWSER_FILE_DEV)
-	echo ' * Copyright (c) 2010-2016 David Majda'                                      >> $(BROWSER_FILE_DEV)
-	echo ' * Licensed under the MIT license.'                                          >> $(BROWSER_FILE_DEV)
-	echo ' */'                                                                         >> $(BROWSER_FILE_DEV)
+	echo "// PEG.js $(PEGJS_VERSION)"                                                  >> $(BROWSER_FILE_DEV)
+	echo '//'                                                                          >> $(BROWSER_FILE_DEV)
+	echo '// http://pegjs.org/'                                                        >> $(BROWSER_FILE_DEV)
+	echo '//'                                                                          >> $(BROWSER_FILE_DEV)
+	echo '// Copyright (c) 2010-2016 David Majda'                                      >> $(BROWSER_FILE_DEV)
+	echo '// Licensed under the MIT license.'                                          >> $(BROWSER_FILE_DEV)
 
-	$(BROWSERIFY) --standalone PEG $(MAIN_FILE) >> $(BROWSER_FILE_DEV)
+	$(BROWSERIFY)                                                   \
+		--standalone peg                                              \
+		--transform [ babelify --presets [ es2015 ] --compact false ] \
+		$(MAIN_FILE) >> $(BROWSER_FILE_DEV)
 
 	$(UGLIFYJS)                 \
 	  --mangle                  \
@@ -99,8 +103,10 @@ lint:
 	$(ESLINT)                                                                \
 	  `find $(LIB_DIR) -name '*.js'`                                         \
 	  `find $(SPEC_DIR) -name '*.js' -and -not -path '$(SPEC_DIR)/vendor/*'` \
+	  $(SPEC_SERVER_FILE)                                                    \
 	  $(BENCHMARK_DIR)/*.js                                                  \
 	  $(BENCHMARK_RUN)                                                       \
+	  $(BENCHMARK_SERVER_FILE)                                               \
 	  $(PEGJS)
 
 .PHONY:  all parser browser browserclean spec benchmark lint

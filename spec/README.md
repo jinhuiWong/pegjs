@@ -12,11 +12,15 @@ All commands in the following steps need to be executed in PEG.js root directory
 
   1. Install all PEG.js dependencies, including development ones:
 
-        $ npm install
+     ```console
+     $ npm install
+     ```
 
   2. Execute the spec suite:
 
-        $ make spec
+     ```console
+     $ make spec
+     ```
 
   3. Watch the specs pass (or fail).
 
@@ -26,20 +30,20 @@ Running in the Browser
 All commands in the following steps need to be executed in PEG.js root directory
 (one level up from this one).
 
-  1. Make sure you have Node.js and Python installed.
+  1. Make sure you have Node.js installed.
 
   2. Install all PEG.js dependencies, including development ones:
 
-        $ npm install
+     ```console
+     $ npm install
+     ```
 
-  3. Build browser version of PEG.js:
+  3. Serve the spec suite using a web server:
 
-        $ make browser
+     ```console
+     $ spec/server
+     ```
 
-  4. Serve PEG.js root directory using a web server:
+  4. Point your browser to the [spec suite](http://localhost:8000/).
 
-        $ python -m SimpleHTTPServer
-
-  5. Point your browser to the [spec suite](http://localhost:8000/spec/index.html).
-
-  6. Watch the specs pass (or fail).
+  5. Watch the specs pass (or fail).

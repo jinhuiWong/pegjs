@@ -1,27 +1,29 @@
-/* eslint no-console: 0 */
-/* global PEG, console */
-
 "use strict";
+
+/* eslint-disable no-console */
+/* global console */
+
+let peg = require("../../lib/peg");
 
 describe("generated parser API", function() {
   describe("parse", function() {
     it("parses input", function() {
-      var parser = PEG.buildParser('start = "a"');
+      let parser = peg.generate("start = 'a'");
 
       expect(parser.parse("a")).toBe("a");
     });
 
     it("throws an exception on syntax error", function() {
-      var parser = PEG.buildParser('start = "a"');
+      let parser = peg.generate("start = 'a'");
 
-      expect(function() { parser.parse("b"); }).toThrow();
+      expect(() => { parser.parse("b"); }).toThrow();
     });
 
     describe("start rule", function() {
-      var parser = PEG.buildParser([
-            'a = "x" { return "a"; }',
-            'b = "x" { return "b"; }',
-            'c = "x" { return "c"; }'
+      let parser = peg.generate([
+            "a = 'x' { return 'a'; }",
+            "b = 'x' { return 'b'; }",
+            "c = 'x' { return 'c'; }"
           ].join("\n"), { allowedStartRules: ["b", "c"] });
 
       describe("when |startRule| is not set", function() {
@@ -39,18 +41,16 @@ describe("generated parser API", function() {
 
       describe("when |startRule| is set to a disallowed start rule", function() {
         it("throws an exception", function() {
-          expect(
-            function() { parser.parse("x", { startRule: "a" }); }
-          ).toThrow();
+          expect(() => { parser.parse("x", { startRule: "a" }); }).toThrow();
         });
       });
     });
 
     describe("tracing", function() {
-      var parser = PEG.buildParser([
-            'start = a / b',
-            'a = "a"',
-            'b = "b"'
+      let parser = peg.generate([
+            "start = a / b",
+            "a = 'a'",
+            "b = 'b'"
           ].join("\n"), { trace: true });
 
       describe("default tracer", function() {
@@ -75,58 +75,58 @@ describe("generated parser API", function() {
       describe("custom tracers", function() {
         describe("trace", function() {
           it("receives tracing events", function() {
-            var tracer = jasmine.createSpyObj("tracer", ["trace"]);
+            let tracer = jasmine.createSpyObj("tracer", ["trace"]);
 
             parser.parse("b", { tracer: tracer });
 
             expect(tracer.trace).toHaveBeenCalledWith({
-              type:     "rule.enter",
-              rule:     "start",
+              type: "rule.enter",
+              rule: "start",
               location: {
                 start: { offset: 0, line: 1, column: 1 },
-                end:   { offset: 0, line: 1, column: 1 }
+                end: { offset: 0, line: 1, column: 1 }
               }
             });
             expect(tracer.trace).toHaveBeenCalledWith({
-              type:     "rule.enter",
-              rule:     "a",
+              type: "rule.enter",
+              rule: "a",
               location: {
                 start: { offset: 0, line: 1, column: 1 },
-                end:   { offset: 0, line: 1, column: 1 }
+                end: { offset: 0, line: 1, column: 1 }
               }
             });
             expect(tracer.trace).toHaveBeenCalledWith({
-              type:     "rule.fail",
-              rule:     "a",
+              type: "rule.fail",
+              rule: "a",
               location: {
                 start: { offset: 0, line: 1, column: 1 },
-                end:   { offset: 0, line: 1, column: 1 }
+                end: { offset: 0, line: 1, column: 1 }
               }
             });
             expect(tracer.trace).toHaveBeenCalledWith({
-              type:     "rule.enter",
-              rule:     "b",
+              type: "rule.enter",
+              rule: "b",
               location: {
                 start: { offset: 0, line: 1, column: 1 },
-                end:   { offset: 0, line: 1, column: 1 }
+                end: { offset: 0, line: 1, column: 1 }
               }
             });
             expect(tracer.trace).toHaveBeenCalledWith({
-              type:     "rule.match",
-              rule:     "b",
-              result:   "b",
+              type: "rule.match",
+              rule: "b",
+              result: "b",
               location: {
                 start: { offset: 0, line: 1, column: 1 },
-                end:   { offset: 1, line: 1, column: 2 }
+                end: { offset: 1, line: 1, column: 2 }
               }
             });
             expect(tracer.trace).toHaveBeenCalledWith({
-              type:     "rule.match",
-              rule:     "start",
-              result:   "b",
+              type: "rule.match",
+              rule: "start",
+              result: "b",
               location: {
                 start: { offset: 0, line: 1, column: 1 },
-                end:   { offset: 1, line: 1, column: 2 }
+                end: { offset: 1, line: 1, column: 2 }
               }
             });
           });
@@ -135,7 +135,7 @@ describe("generated parser API", function() {
     });
 
     it("accepts custom options", function() {
-      var parser = PEG.buildParser('start = "a"');
+      let parser = peg.generate("start = 'a'");
 
       parser.parse("a", { foo: 42 });
     });
