@@ -1,13 +1,13 @@
 {
-  "name": "pegjs",
-  "version": "0.10.0",
+  "name": "@jhwong/pegjs",
+  "version": "0.0.1",
   "description": "Parser generator for JavaScript",
   "keywords": [
     "parser generator",
     "PEG"
   ],
   "homepage": "http://pegjs.org/",
-  "bugs": "https://github.com/nwronski/pegjs/issues",
+  "bugs": "https://github.com/jinhuiWong/pegjs/issues",
   "license": "MIT",
   "author": "David Majda <david@majda.cz> (http://majda.cz/)",
   "contributors": [
@@ -44,7 +44,7 @@
   ],
   "main": "lib/peg",
   "bin": "bin/pegjs",
-  "repository": "nwronski/pegjs",
+  "repository": "https://github.com/jinhuiWong/pegjs.git",
   "scripts": {
     "test": "make lint && make spec"
   },
